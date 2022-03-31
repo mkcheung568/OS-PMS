@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+// Example of using structures to get the data and compare
 
 struct Team{
     char teamName[50];
