@@ -4,7 +4,7 @@
 #define TSIZE 10000
 
 // SJT of task 3 with fixed record
-// Job Done:
+// Job Done: 
 // Find all members with corresponding team information and meeting record
 // Sorting all the meeting record according to meeting length
 // Calculate all the End time by adding start time and length
