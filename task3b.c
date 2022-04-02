@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int main(){
-
+    //
     // File name detection, prevent using existing file
     FILE *file;
     char filename[] = "Schelde_SJF_00.txt";
