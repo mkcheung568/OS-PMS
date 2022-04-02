@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #define TSIZE 10000
 
-// SJT of task 3 with fixed record
+// SJT of task 3 with changeable record
 // Job Done: 
 // Find all members with corresponding team information and meeting record
 // Sorting all the meeting record according to meeting length
