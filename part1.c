@@ -47,6 +47,8 @@ typedef struct Team{
               scanf("%d",&op);
               getchar(); //due to the newline character is still in the input buffer on fgets,add getchar() can solve the problem in looping
               
+               count++; //count for time of looping if user wants to continues
+ }
               
             }else if(op == 0){
                
@@ -60,8 +62,7 @@ typedef struct Team{
               
 
             }
-            count++; //count for time of looping if user wants to continues
- }
+           
 
 
 /**  check the input whether save in struct correctly
