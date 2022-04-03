@@ -30,7 +30,7 @@ typedef struct Team{
   
         team arr[5]; //define a team array of 5 records
   
-        while (op == 1 || op >1 ){
+        while (op == 1 || op !=1 ){
             
             if (op == 1){
         
@@ -50,6 +50,8 @@ typedef struct Team{
               
             }else if(op == 0){
                
+                menu(); //calling main menu function
+
                 break;
             }else{
                   printf("Wrong input, please enter again ");
@@ -67,8 +69,7 @@ typedef struct Team{
             printf("show: %s %s  %s  %s %s %s\n",arr[i].tem,arr[i].proj,arr[i].leader,arr[i].mem1,arr[i].mem2,arr[i].mem3);
         }
  **/
-        menu(); //calling main menu function
-
+        
   }
 
 
