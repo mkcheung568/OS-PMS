@@ -38,7 +38,7 @@ void single_input(){
   
         meeting marr[10]; //define a team array of 10 records
   
-     while (op ==21 || op!= 21 ){
+     while (true){ // "op == 21 || op != 21" is same as true, as it cannot be false, i.e. op = 10 then right is true, op = 21 then left is false
             
           if (op == 21 ){
         
