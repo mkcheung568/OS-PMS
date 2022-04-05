@@ -7,38 +7,39 @@
 
 
 //  The Struct save the  data of meeting request,can access by define a array tag like arr[5]
-typedef struct Meeting{
+struct Meeting{
         char team[40];
         char date[40];
         char time[40];
-        char duration[3];
+        char duration[40];
         
-    }meeting;
+    };
 
 
 
-    void single_input();
+    void single_input(struct Meeting marr[100]);
 
 //for testing the function
 int main(int argc, char *argv[]){
  
+  struct Meeting marr[100];
  
-   single_input();
+   single_input(marr);
 
 }
 
 
 
 
-void single_input(){
+void single_input(struct Meeting marr[100]){
 
         char str[100];
         int op =21; // op is a option from user input 1-4
         int count=0;
   
-        meeting marr[10]; //define a team array of 10 records
+       
   
-     while (true){ // "op == 21 || op != 21" is same as true, as it cannot be false, i.e. op = 10 then right is true, op = 21 then left is false
+     while (1){ // "op == 21 || op != 21" is same as true, as it cannot be false, i.e. op = 10 then right is true, op = 21 then left is false
             
           if (op == 21 ){
         
