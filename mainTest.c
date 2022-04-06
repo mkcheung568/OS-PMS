@@ -37,6 +37,7 @@ int menu(){
     printf("4. Exit\n\n");
     printf("  Enter an option: ");
     scanf("%d",&option);
+    getchar();
     return option;
 }
 
@@ -231,7 +232,7 @@ int main(int argc, char *argv[]){
     {
         option = menu();
         switch(option){
-            case 1: project_team(arr);printf("AA\n");break;
+            case 1: project_team(arr);break;
             case 21: single_input(marr);break;
             case 32: task3_sjf(meetingTotal,teamTotal,marr,arr);break;
             case 4: break;
