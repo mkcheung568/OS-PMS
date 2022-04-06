@@ -9,7 +9,7 @@
 struct Team{
     char tem[40];
     char proj[40];
-    char member[4][40]; // !! leader, mem1,mem2,mem3 have changed into 2D array, make the looping easiler
+    char member[4][40];
 };
 
 struct Meeting{
@@ -20,6 +20,12 @@ struct Meeting{
 };
 // Declare function
 char* replaceWordInText(const char *text, const char *oldWord, const char *newWord);
+
+// Global variable
+int team_count=0;//Original in project_team, Problem occur if users input once and exit function, then go to function again and input.
+int meeting_count=0;// same as above
+
+
 //print menu
 int menu(){
     int option;
@@ -42,37 +48,18 @@ int menu(){
 }
 
 void project_team(struct Team arr[5]){
-
     char str[100];
-    int op =1; // op is a option from user input 1-4
-    int count=0;
+    do{
+        printf("Enter>  ");
+        scanf("%99[^\n]",&str); //%[^\n]s can input string including space 
+        getchar();
+        if(strcmp(str,"0")==0) break;// exit function if users input 0
+        sscanf( str, "%s %s %s %s %s %s",arr[team_count].tem,arr[team_count].proj,arr[team_count].member[0],arr[team_count].member[1],arr[team_count].member[2],arr[team_count].member[3]); //conver user input string to words and store in struct variable separately
+        printf(">>>>>> Project %s is created.\n",replaceWordInText(arr[team_count].tem,"_"," "));
 
 
-    while (1){
-
-        if (op == 1){
-
-            printf("Enter>  ");
-            scanf("%99[^\n]",&str); //%[^\n]s can input string including space 
-
-            sscanf( str, "%s %s %s %s %s %s",arr[count].tem,arr[count].proj,arr[count].member[0],arr[count].member[1],arr[count].member[2],arr[count].member[3]); //conver user input string to words and store in struct variable separately
-            printf(">>>>>> Project %s  is created.\n",replaceWordInText(arr[count].tem,"_"," "));
-
-
-            count++; //count for time of looping if user wants to continues
-     
-        }else if(op == 0){
-            //menu(); //calling menu function
-            break;
-        }else {
-            printf("Wrong input, please enter again ");
-            scanf("%d",&op);
-            getchar(); //due to the newline character is still in the input buffer on fgets,add getchar() can solve the problem in looping 
-        }
-        printf("Enter 1/0 > " );  
-        scanf("%d",&op);
-        getchar(); //due to the newline character is still in the input buffer on fgets,add getchar() can solve the problem in looping 
-    }
+        team_count++; //count for time of looping if user wants to continues
+    }while(1);
 
 
 /**  check the input whether save in struct correctly
@@ -112,49 +99,21 @@ char* replaceWordInText(const char *text, const char *oldWord, const char *newWo
 }
 
 void single_input(struct Meeting marr[100]){
+    char str[100];   
+    do{    
+        printf("Enter>  ");
+        scanf("%[^\n]s",&str); //%[^\n]s can input string including space 
+        getchar();
+        if(strcmp(str,"0")==0) break; // exit the function
+        sscanf( str, "%s %s %s %s ",marr[meeting_count].team,marr[meeting_count].date,marr[meeting_count].time,marr[meeting_count].duration); //conver user input string to words and store in struct variable separately
 
-    char str[100];
-    int op =21; // op is a option from user input 1-4
-    int count=0;
-    
-       
-  
-    while (1){
-            
-        if (op == 21 ){
-    
-            do{ //this while loop for range checking to make sure user input duration should between 1-9
-                printf("Enter>  ");
-                scanf("%[^\n]s",str); //%[^\n]s can input string including space 
-                getchar(); 
-                sscanf( str, "%s %s %s %s ",marr[count].team,marr[count].date,marr[count].time,marr[count].duration); //conver user input string to words and store in struct variable separately
-
-                if(atoi(marr[count].duration) <=0 || atoi(marr[count].duration) >=10 ){ //atoi is convert string to integer
-                    printf("The duration should from 1 to 9,Please enter again\n");
-                    continue; //back to the beginning of the looping
-                }else{
-                    break;
-                }
-            }while(1);
-            printf("Meeting is being added for %s in %s at %s for %s hours.  \n\n",replaceWordInText(marr[count].team,"_"," "),marr[count].date,marr[count].time,marr[count].duration);
-            
-            count++; //count for time of looping if user wants to continues
-
-            
-        }else if(op == 0){
-            //menu(); //calling menu function
-            break;
-        }else{  
-            
-            printf("Wrong input, please enter again!\n");
-                
+        if(atoi(marr[meeting_count].duration) <=0 || atoi(marr[meeting_count].duration) >=10 ){ //atoi is convert string to integer
+            printf("The duration should from 1 to 9,Please enter again\n");
+            continue; //back to the beginning of the looping
         }
-
-        printf ("Do you want to add again ? Enter 21 to continue or 0 back to main menu: " );  
-        
-        scanf("%d",&op);
-        getchar(); //due to the newline character is still in the input buffer on fgets,add getchar() can solve the problem in looping
-    }
+        printf("Meeting is being added for %s in %s at %s for %s hours.  \n\n",replaceWordInText(marr[meeting_count].team,"_"," "),marr[meeting_count].date,marr[meeting_count].time,marr[meeting_count].duration);
+        meeting_count++; //count for time of looping if user wants to continues
+    }while(1);
 }
 
 void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], struct Team teamArr[]){
@@ -166,11 +125,11 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
     int memberID,teamID,memberPos=0,meetingID,haveMeetingRecord=0;// calculation for the loop
     int nextPos,sjfID[meetingTotal],sjfMeetingLength[meetingTotal],sjfPlaced=0;// array for sjf use
     // sjf \/ use to store the string to be printed
+    char sjf[meetingTotal][TSIZE];
     // nextPos store the next position of sjf to be used
     // sjfID store the id order of nextPos to be printed
     // sjfMeetingLength store the sjfID represent meetingID's lenght, use for compare the length for other meeting
     // sjfPlace use to check if current meetingID is placed into the array of sjf or not
-    char sjf[meetingTotal][TSIZE];
     for (memberID=0;memberID<8;memberID++){// Find all member
         printf("Member: %s\n\n",MemberName[memberID]);
         nextPos = 0;
@@ -236,7 +195,7 @@ int main(int argc, char *argv[]){
             case 21: single_input(marr);break;
             case 32: task3_sjf(meetingTotal,teamTotal,marr,arr);break;
             case 4: break;
-            default: printf("Input ERROR!\n Please input again! \n");
+            default: printf("\n **  Input ERROR! Please input again! ** \n");
         }
     } while (option!=4);
     exit(0);
