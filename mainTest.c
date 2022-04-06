@@ -115,7 +115,7 @@ void single_input(struct Meeting marr[100]){
     char str[100];
     int op =21; // op is a option from user input 1-4
     int count=0;
-    printf("A\n");
+    
        
   
     while (1){
