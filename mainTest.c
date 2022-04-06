@@ -9,7 +9,7 @@
 struct Team{
     char tem[40];
     char proj[40];
-    char member[4][40];
+    char member[4][40]; // !! leader, mem1,mem2,mem3 have changed into 2D array, make the looping easiler
 };
 
 struct Meeting{
