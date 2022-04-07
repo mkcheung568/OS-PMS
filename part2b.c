@@ -50,7 +50,7 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     int count=0;
     
 
-
+/**
  for(int row=0; row<100; row++){ // find the marr row until the row is empty
 
      if(strlen(marr[row].team) !=0){
@@ -62,7 +62,7 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     }
  }
  count =crow;
-
+**/
  
 	printf("Input the filename to be opened : ");
 	scanf("%s",fname);	
@@ -86,7 +86,7 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
 
 
     }
-   /** for(int j=tot;j<100;j++){// set the rest of the array to empty 
+    for(int j=tot;j<100;j++){// set the rest of the array to empty 
     
       strcpy(marr[j].team , "\0");
       strcpy(marr[j].date , "\0");
@@ -94,7 +94,7 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
       strcpy(marr[j].duration ,"\0");
 
 
-    }**/
+    }
    printf("\nMeeting request has been imported!\n\n");
    
 /**for testing only **/
