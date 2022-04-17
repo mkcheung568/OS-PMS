@@ -53,7 +53,7 @@ void project_team(struct Team arr[5]){
         if (op == 1){
 
             printf("Enter>  ");
-            scanf("%99[^\n]",&str); //%[^\n]s can input string including space 
+            scanf("%99[^\n]",str); //%[^\n]s can input string including space 
 
             sscanf( str, "%s %s %s %s %s %s",arr[count].tem,arr[count].proj,arr[count].member[0],arr[count].member[1],arr[count].member[2],arr[count].member[3]); //conver user input string to words and store in struct variable separately
             printf(">>>>>> Project %s  is created.\n",replaceWordInText(arr[count].tem,"_"," "));
