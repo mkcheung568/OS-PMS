@@ -306,10 +306,7 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
                     close(fd[i][1]);
                 }
             }
-            raise(SIGSTOP);
             read(fd[memberID][0],buffer,20);
-            
-            file=fopen(filename,"a"); 
             // printf("Member: %s\n\n",MemberName[memberID]); # current
             nextPos = 0;
             for(teamID=0;teamID<teamTotal;teamID++){// Search all team
@@ -358,6 +355,8 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
                     }
                 }
             }
+            raise(SIGSTOP);
+            file=fopen(filename,"a"); 
             if (haveMeetingRecord){// have data to printed.
                 // start line
                 fprintf(file,"Staff: %s\n\n",buffer);
@@ -377,11 +376,12 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
             close(fd[memberID][1]);
             raise(SIGSTOP);
             exit(0);
+        }else{// give the child member name
+            write(fd[memberID][1],MemberName[memberID],20);
         }
     }
     for (memberID = 0; memberID<8;memberID++){
         waitpid(pid[memberID], NULL, WUNTRACED);
-        write(fd[memberID][1],MemberName[memberID],20);
         kill(pid[memberID], SIGCONT);
         waitpid(pid[memberID], NULL, WUNTRACED);
         kill(pid[memberID], SIGCONT);
