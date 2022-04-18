@@ -3,6 +3,7 @@
 #include <unistd.h> 
 #include <string.h>
 #include <ctype.h>
+#include <signal.h>
 
 #define TSIZE 256
 
@@ -281,71 +282,111 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
     haveMeetingRecord=0;
 
     // same as above for loop for each member
-    for (memberID=0;memberID<8;memberID++){// Find all member
-        // printf("Member: %s\n\n",MemberName[memberID]); # current
-        nextPos = 0;
-        for(teamID=0;teamID<teamTotal;teamID++){// Search all team
-            for(memberPos=0;memberPos<4;memberPos++){ // Find all 4 position in member of team
-                if(strcmp(teamArr[teamID].member[memberPos],MemberName[memberID])==0){// Member Find in team
-                    for(meetingID=0;meetingID<meetingTotal;meetingID++){ // Search All meeting record
-                        if(strcmp(meetingArr[meetingID].team,teamArr[teamID].tem)==0){// Meeting belong to that team
-                            strcpy(temp_date,meetingArr[meetingID].date);
-                            temp = strtok(temp_date,"-");// remove year
-                            meeting_year = atoi(temp);
-                            temp = strtok(NULL,"-");    // remove month
-                            meeting_month = atoi(temp);
-                            temp = strtok(NULL,"-");    // remove date
-                            meeting_date = atoi(temp);
-                            if(DateCompare(start_year,start_month,start_date,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,end_year,end_month,end_date)){ 
-                                strcpy(temp_time,meetingArr[meetingID].time);
-                                temp = strtok(temp_time,":");// Get the hour of start time
-                                hour = atoi(temp);
-                                temp = strtok(NULL,":");    // Get the minute of start time
-                                minute = atoi(temp); 
-                                // Record to be printed
-                                //                    Date Start              End                Team Project       
-                                sprintf(sjf[nextPos],"%-15s%02d:%02d          %02d:%02d          %-15s%-15s\n",meetingArr[meetingID].date,hour,minute,hour+atoi(meetingArr[meetingID].duration),minute,meetingArr[meetingID].team,teamArr[teamID].proj);
-                                sjfPlaced=0;
-                                for(i=0;i<nextPos;i++){// Loop for checking the minimum hour, and place into two array
-                                    if(sjfMeetingLength[i]>atoi(meetingArr[meetingID].duration)){
-                                        for(j=nextPos;j>=i;j--){// Find a smaller length in the array
-                                            sjfMeetingLength[j]=sjfMeetingLength[j-1];// Move all result in array backward
-                                            sjfID[j]=sjfID[j-1];
+
+    fclose(file);
+    int parentID;
+    char buffer[21];
+    int fd[8][2];
+    for (i=0;i<8;i++){ 
+        if(pipe(fd[i])<0){
+            printf("Pipe Error");exit(1);
+        }
+    };
+    //loop for separate each staff meeting 
+    parentID = getpid();
+    pid_t pid[8];
+    for (memberID=0;memberID<8;memberID++){ // create 8 children for write each member
+        if((pid[memberID] = fork()) < 0){
+            printf("Fork Error!"); exit(1);// fork error occur
+        }else if(pid[memberID]==0){// child here
+            // close all not necessary pipe
+            for (i=0;i<8;i++){
+                if (i != memberID){
+                    close(fd[i][0]);
+                    close(fd[i][1]);
+                }
+            }
+            raise(SIGSTOP);
+            read(fd[memberID][0],buffer,20);
+            
+            file=fopen(filename,"a"); 
+            // printf("Member: %s\n\n",MemberName[memberID]); # current
+            nextPos = 0;
+            for(teamID=0;teamID<teamTotal;teamID++){// Search all team
+                for(memberPos=0;memberPos<4;memberPos++){ // Find all 4 position in member of team
+                    if(strcmp(teamArr[teamID].member[memberPos],buffer)==0){// Member Find in team
+                        for(meetingID=0;meetingID<meetingTotal;meetingID++){ // Search All meeting record
+                            if(strcmp(meetingArr[meetingID].team,teamArr[teamID].tem)==0){// Meeting belong to that team
+                                strcpy(temp_date,meetingArr[meetingID].date);
+                                temp = strtok(temp_date,"-");// remove year
+                                meeting_year = atoi(temp);
+                                temp = strtok(NULL,"-");    // remove month
+                                meeting_month = atoi(temp);
+                                temp = strtok(NULL,"-");    // remove date
+                                meeting_date = atoi(temp);
+                                if(DateCompare(start_year,start_month,start_date,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,end_year,end_month,end_date)){ 
+                                    strcpy(temp_time,meetingArr[meetingID].time);
+                                    temp = strtok(temp_time,":");// Get the hour of start time
+                                    hour = atoi(temp);
+                                    temp = strtok(NULL,":");    // Get the minute of start time
+                                    minute = atoi(temp); 
+                                    // Record to be printed
+                                    //                    Date Start              End                Team Project       
+                                    sprintf(sjf[nextPos],"%-15s%02d:%02d          %02d:%02d          %-15s%-15s\n",meetingArr[meetingID].date,hour,minute,hour+atoi(meetingArr[meetingID].duration),minute,meetingArr[meetingID].team,teamArr[teamID].proj);
+                                    sjfPlaced=0;
+                                    for(i=0;i<nextPos;i++){// Loop for checking the minimum hour, and place into two array
+                                        if(sjfMeetingLength[i]>atoi(meetingArr[meetingID].duration)){
+                                            for(j=nextPos;j>=i;j--){// Find a smaller length in the array
+                                                sjfMeetingLength[j]=sjfMeetingLength[j-1];// Move all result in array backward
+                                                sjfID[j]=sjfID[j-1];
+                                            }
+                                            sjfID[i]=nextPos;// Store the record into array
+                                            sjfMeetingLength[i]=atoi(meetingArr[meetingID].duration);
+                                            sjfPlaced=1;
+                                            break;// stop search
                                         }
-                                        sjfID[i]=nextPos;// Store the record into array
-                                        sjfMeetingLength[i]=atoi(meetingArr[meetingID].duration);
-                                        sjfPlaced=1;
-                                        break;// stop search
                                     }
-                                }
-                                if(!sjfPlaced){// Cannot find a smaller length with other;
-                                    sjfID[nextPos]=nextPos;
-                                    sjfMeetingLength[nextPos]=atoi(meetingArr[meetingID].duration);
-                                }
-                                nextPos++;// check to index of sjf
-                                haveMeetingRecord=1;// boolean set
-                            }                            
+                                    if(!sjfPlaced){// Cannot find a smaller length with other;
+                                        sjfID[nextPos]=nextPos;
+                                        sjfMeetingLength[nextPos]=atoi(meetingArr[meetingID].duration);
+                                    }
+                                    nextPos++;// check to index of sjf
+                                    haveMeetingRecord=1;// boolean set
+                                }                            
+                            }
                         }
                     }
                 }
             }
-        }
-        if (haveMeetingRecord){// have data to printed.
-            // start line
-            fprintf(file,"Staff: %s\n\n",MemberName[memberID]);
-            // list
-            fprintf(file,"Date           Start          End            Team           Project        \n");
-            fprintf(file,"===========================================================================\n");
-            // record
-            for(i=0;i<nextPos;i++){// print the result in specical order
-                //printf("%s\n",sjf[sjfID[i]]);
-                fprintf(file,"%s",sjf[sjfID[i]]);
+            if (haveMeetingRecord){// have data to printed.
+                // start line
+                fprintf(file,"Staff: %s\n\n",buffer);
+                // list
+                fprintf(file,"Date           Start          End            Team           Project        \n");
+                fprintf(file,"===========================================================================\n");
+                // record
+                for(i=0;i<nextPos;i++){// print the result in specical order
+                    //printf("%s\n",sjf[sjfID[i]]);
+                    fprintf(file,"%s",sjf[sjfID[i]]);
+                }
+                // end line
+                fprintf(file,"\n===========================================================================\n");
             }
-            // end line
-            fprintf(file,"\n===========================================================================\n");
+            fclose(file);
+            close(fd[memberID][0]);
+            close(fd[memberID][1]);
+            raise(SIGSTOP);
+            exit(0);
         }
-        haveMeetingRecord=0; // boolean reset
     }
+    for (memberID = 0; memberID<8;memberID++){
+        waitpid(pid[memberID], NULL, WUNTRACED);
+        write(fd[memberID][1],MemberName[memberID],20);
+        kill(pid[memberID], SIGCONT);
+        waitpid(pid[memberID], NULL, WUNTRACED);
+        kill(pid[memberID], SIGCONT);
+    }
+    file=fopen(filename,"a");   
     if (!anyRecord){ // if not meeting record in the periods
         fprintf(file,"===========================================================================\n");
         fprintf(file,"No meeting record within this period.\n");
@@ -390,7 +431,7 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
     ///////////////////////////////print data to txt file /////////////////////////
 
     FILE *file; // set file variable
-    char filename[] = "Schelde_FCFS_01.txt"; // temp file name
+    char filename[] = "Schelde_FCFS_00.txt"; // temp file name
     int indexD1 = 0;// get 10 digit
     int indexD2 = 0;// get 1 digit
     int index = 0;
@@ -491,32 +532,53 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
 
 
 
+    fclose(file);
     //loop for separate each staff meeting 
-    for(m=0; m<8;m++ ){ //loop for namelist
-        fprintf(file,"================================================================================\n");
-        fprintf(file,"Staff: %s\n\n",namelist[m]);
-        fprintf(file,"Date                 Start            End             Team             Project        \n");
-        fprintf(file,"================================================================================\n");
-        for(n=0;n<5;n++){ //loop for team struct,mathching the namelist with team struct member name
-            if(strcmp(namelist[m],arr[n].member[0]) == 0 || strcmp(namelist[m],arr[n].member[1]) == 0 || strcmp(namelist[m],arr[n].member[2]) == 0 || strcmp(namelist[m],arr[n].member[3]) == 0 ){
-                for(p=0;p<crow;p++){//loop for meeting struct find match with teams name
-                    if(strcmp(arr[n].tem,marr[p].team) == 0){
-                        strcpy(temp_date,marr[p].date);
-                        temp = strtok(temp_date,"-");// remove year
-                        meeting_year = atoi(temp);
-                        temp = strtok(NULL,"-");    // remove month
-                        meeting_month = atoi(temp);
-                        temp = strtok(NULL,"-");    // remove date
-                        meeting_date = atoi(temp);
-                        // Check the date
-                        if(DateCompare(start_year,start_month,start_date,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,end_year,end_month,end_date))
-                            fprintf(file,"%s           %s           %s           %s           %s           \n",marr[p].date,marr[p].time,end[p],arr[n].tem,arr[n].proj);
+    char targetMemberName[TSIZE];
+
+    int childID, parentID;
+    parentID = getpid();
+    pid_t pid[8];
+    for (childID=0;childID<8;childID++){ // create 8 children for write each member
+        if((pid[childID] = fork()) < 0){
+            printf("Fork Error!"); exit(1);// fork error occur
+        }else if(pid[childID]==0){// child here
+            raise(SIGSTOP);
+            file = fopen(filename,"a");
+            fprintf(file,"================================================================================\n");
+            fprintf(file,"Staff: %s\n\n",namelist[childID]);
+            fprintf(file,"Date                 Start            End             Team             Project        \n");
+            fprintf(file,"================================================================================\n");
+            for(n=0;n<5;n++){ //loop for team struct,mathching the namelist with team struct member name
+                if(strcmp(namelist[childID],arr[n].member[0]) == 0 || strcmp(namelist[childID],arr[n].member[1]) == 0 || strcmp(namelist[childID],arr[n].member[2]) == 0 || strcmp(namelist[childID],arr[n].member[3]) == 0 ){
+                    for(p=0;p<crow;p++){//loop for meeting struct find match with teams name
+                        if(strcmp(arr[n].tem,marr[p].team) == 0){
+                            strcpy(temp_date,marr[p].date);
+                            temp = strtok(temp_date,"-");// remove year
+                            meeting_year = atoi(temp);
+                            temp = strtok(NULL,"-");    // remove month
+                            meeting_month = atoi(temp);
+                            temp = strtok(NULL,"-");    // remove date
+                            meeting_date = atoi(temp);
+                            // Check the date
+                            if(DateCompare(start_year,start_month,start_date,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,end_year,end_month,end_date))
+                                fprintf(file,"%s           %s           %s           %s           %s           \n",marr[p].date,marr[p].time,end[p],arr[n].tem,arr[n].proj);
+                        }
                     }
                 }
             }
+            fclose(file);
+            raise(SIGSTOP);
+            exit(0);
         }
     }
-
+    for (childID = 0; childID<8;childID++){
+        waitpid(pid[childID], NULL, WUNTRACED);
+        kill(pid[childID], SIGCONT);
+        waitpid(pid[childID], NULL, WUNTRACED);
+        kill(pid[childID], SIGCONT);
+    }
+    file=fopen(filename,"a");
     // End line
     fprintf(file,"                               -End-                                        \n");
     // Close the file is important
@@ -669,7 +731,7 @@ void fcfs(struct Meeting marr[100], int meeting_Count) {
 }
 
 int main(int argc, char *argv[]){
-    int meetingTotal = 100, teamTotal = 5, loop = 1;
+    int meetingTotal = 100, teamTotal = 5, loop = 1, pid;
     // set the struct
     struct Team arr[teamTotal];
     struct Meeting marr[meetingTotal];
