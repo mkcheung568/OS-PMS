@@ -63,6 +63,10 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     
     printf("Input the filename to be opened : ");
     scanf("%s",fname);	
+    getchar();
+    if(strcmp(fname,"0")==0){
+        return;
+    }
 
     fptr = fopen(fname, "r");
     while(fgets(line[i], LSIZE, fptr)) {
@@ -71,7 +75,6 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     }
     fclose(fptr);
     tot = i;//The number of row from import file 
-    getchar();
 
     
     for(i = 0; i < tot; ++i){
