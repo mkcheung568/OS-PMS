@@ -77,11 +77,34 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     fclose(fptr);
     tot = i;//The number of row from import file 
 
-    
+    char meeting_DATE[TSIZE],meeting_Time[TSIZE],*temp;
+    int meeting_year, meeting_month, meeting_date,time,minute;
     for(i = 0; i < tot; ++i){
-        if (line[i]=="") crow++;
-        sscanf( line[i], "%s %s %s %s ",marr[count].team,marr[count].date,marr[count].time,marr[count].duration); //put the line string array into struct  
-        count++;
+        strcpy(meeting_DATE,marr[count].date);      // backup data
+        temp = strtok(meeting_DATE,"-");            // remove year (Start date)
+        meeting_year = atoi(temp);                  // save the year
+        temp = strtok(NULL,"-");                    // remove month
+        meeting_month = atoi(temp);                 // save the month
+        temp = strtok(NULL,"-");                    // remove date
+        meeting_date = atoi(temp);                  // save the date
+        strcpy(meeting_Time,marr[count].time);
+        temp = strtok(meeting_Time,":");
+        time = atoi(temp);
+        temp = strtok(meeting_Time,":");
+        minute = atoi(temp);
+        if ((meeting_month == 5 && meeting_date == 1)||(meeting_month == 5 && meeting_date == 8)){
+            printf("Meeting cannot added to the system. Problem detected: Meeting on Sunday.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
+        }
+        else if (time + atoi(marr[count].duration) > 19 || (time + atoi(marr[count].duration) == 19 && minute != 0) || time < 9){
+            printf("Meeting cannot added to the system. Problem detected: Meeting time should be within 09:00 to 18:00.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
+        }
+        else if (DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
+            if (line[i]=="") crow++;
+            sscanf( line[i], "%s %s %s %s ",marr[count].team,marr[count].date,marr[count].time,marr[count].duration); //put the line string array into struct  
+            count++;
+        }else {
+            printf("Meeting cannot added to the system. Problem detected: Meeting is not within 2022-04-25 to 2022-05-14.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s\n",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
+        }
     }
     for(j=tot;j<100;j++){// set the rest of the array to empty 
         strcpy(marr[j].team , "\0");
@@ -145,9 +168,38 @@ void single_input(struct Meeting marr[100]){
         sscanf( str, "%s %s %s %s ",marr[meeting_count].team,marr[meeting_count].date,marr[meeting_count].time,marr[meeting_count].duration); //conver user input string to words and store in struct variable separately
 
         if(atoi(marr[meeting_count].duration) <=0 || atoi(marr[meeting_count].duration) >=10 ){ //atoi is convert string to integer
-            printf("The duration should from 1 to 9,Please enter again\n");
+            printf("The duration should from 1 to 9. Please enter again.\n");
             continue; //back to the beginning of the looping
         }
+        char meeting_DATE[TSIZE],meeting_Time[TSIZE],*temp;
+        int meeting_year, meeting_month, meeting_date,time,minute;
+        strcpy(meeting_DATE,marr[meeting_count].date);      // backup data
+        temp = strtok(meeting_DATE,"-");                    // remove year (Start date)
+        meeting_year = atoi(temp);                          // save the year
+        temp = strtok(NULL,"-");                            // remove month
+        meeting_month = atoi(temp);                         // save the month
+        temp = strtok(NULL,"-");                            // remove date
+        meeting_date = atoi(temp);                          // save the date
+        strcpy(meeting_Time,marr[meeting_count].time);
+        temp = strtok(meeting_Time,":");
+        time = atoi(temp);
+        temp = strtok(meeting_Time,":");
+        minute = atoi(temp);
+        printf("%d %d %d\n",meeting_year,meeting_month,meeting_date);
+        printf("%d %d",DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date),DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14));
+        if (! DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) || !DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
+            printf("Meeting date should be within 2022-04-25 to 2022-05-14.Please enter again.\n");
+            continue; //back to the beginning of the looping
+        }
+        if (time + atoi(marr[meeting_count].duration) > 19 || (time + atoi(marr[meeting_count].duration) == 19 && minute != 0) || time < 9){
+            printf("Meeting time should be within 09:00 to 18:00.Please enter again.\n");
+            continue; //back to the beginning of the looping
+        }
+        if ((meeting_month == 5 && meeting_date == 1)||(meeting_month == 5 && meeting_date == 8)){
+            printf("Meeting date should be between Monday to Saturday. Please enter again.\n");
+            continue; //back to the beginning of the looping
+        }
+
         printf("Meeting is being added for %s in %s at %s for %s hours.  \n\n",replaceWordInText(marr[meeting_count].team,"_"," "),marr[meeting_count].date,marr[meeting_count].time,marr[meeting_count].duration);
         meeting_count++; //count for time of looping if user wants to continues
     }while(1);
