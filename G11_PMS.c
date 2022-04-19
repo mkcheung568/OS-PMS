@@ -80,6 +80,9 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     char meeting_DATE[TSIZE],meeting_Time[TSIZE],*temp;
     int meeting_year, meeting_month, meeting_date,time,minute;
     for(i = 0; i < tot; ++i){
+        if (line[i]=="")
+            continue;
+        sscanf(line[i], "%s %s %s %s ",marr[count].team,marr[count].date,marr[count].time,marr[count].duration); //put the line string array into struct  
         strcpy(meeting_DATE,marr[count].date);      // backup data
         temp = strtok(meeting_DATE,"-");            // remove year (Start date)
         meeting_year = atoi(temp);                  // save the year
@@ -99,8 +102,6 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
             printf("Meeting cannot added to the system. Problem detected: Meeting time should be within 09:00 to 18:00.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
         }
         else if (DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
-            if (line[i]=="") crow++;
-            sscanf( line[i], "%s %s %s %s ",marr[count].team,marr[count].date,marr[count].time,marr[count].duration); //put the line string array into struct  
             count++;
         }else {
             printf("Meeting cannot added to the system. Problem detected: Meeting is not within 2022-04-25 to 2022-05-14.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s\n",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
