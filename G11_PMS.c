@@ -495,7 +495,7 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
         filename[13]=temp[0]; // replace the temp file name
         sprintf(temp,"%d",indexD1); //combine the string 
         filename[14]=temp[0]; // replace the temp file name
-        if (file==fopen(filename,"r")){ // open to test if the file exist
+        if (file=fopen(filename,"r")){ // open to test if the file exist
             fclose(file);
             index++;  // exist add one digit
         }
@@ -585,8 +585,6 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
 
     fclose(file);
     //loop for separate each staff meeting 
-    char targetMemberName[TSIZE];
-
     int childID, parentID;
     parentID = getpid();
     pid_t pid[8];
@@ -600,10 +598,12 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
             fprintf(file,"Staff: %s\n\n",namelist[childID]);
             fprintf(file,"Date                 Start            End             Team             Project        \n");
             fprintf(file,"================================================================================\n");
-            for(n=0;n<5;n++){ //loop for team struct,mathching the namelist with team struct member name
-                if(strcmp(namelist[childID],arr[n].member[0]) == 0 || strcmp(namelist[childID],arr[n].member[1]) == 0 || strcmp(namelist[childID],arr[n].member[2]) == 0 || strcmp(namelist[childID],arr[n].member[3]) == 0 ){
-                    for(p=0;p<crow;p++){//loop for meeting struct find match with teams name
-                        if(strcmp(arr[n].tem,marr[p].team) == 0){
+            for(p=0;p<crow;p++){ //loop for meeting recording first
+                for (n=0;n<5;n++){ // loop for team then
+                    // If team is response for the meeting
+                    if(strcmp(arr[n].tem,marr[p].team) == 0){
+                    // If member is belong to the team
+                        if(strcmp(namelist[childID],arr[n].member[0]) == 0 || strcmp(namelist[childID],arr[n].member[1]) == 0 || strcmp(namelist[childID],arr[n].member[2]) == 0 || strcmp(namelist[childID],arr[n].member[3]) == 0 ){
                             strcpy(temp_date,marr[p].date);
                             temp = strtok(temp_date,"-");// remove year
                             meeting_year = atoi(temp);
@@ -612,9 +612,11 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
                             temp = strtok(NULL,"-");    // remove date
                             meeting_date = atoi(temp);
                             // Check the date
-                            if(DateCompare(start_year,start_month,start_date,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,end_year,end_month,end_date))
+                            if(DateCompare(start_year,start_month,start_date,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,end_year,end_month,end_date)){
                                 fprintf(file,"%s           %s           %s           %s           %s           \n",marr[p].date,marr[p].time,end[p],arr[n].tem,arr[n].proj);
+                            }
                         }
+                        
                     }
                 }
             }
@@ -754,7 +756,6 @@ void fcfs(struct Meeting marr[100], int meeting_Count) {
     for ( i = 0; i < crow-1; i++){  
         for ( j = 0; j < crow -1- i; j++){
             if (day[j] == day[j + 1] && hour[j] > hour[j + 1] ) {
-               
                 temp = hour[j];
                 strcpy(teamtem, marr[j].team);
                 strcpy(datetem, marr[j].date);
@@ -796,8 +797,7 @@ int main(int argc, char *argv[]){
 
         // save the input
         sscanf(inputString,"%s %s %s",option,Start_Date,End_Date);
-        
-        if ((strcmp(option,"3a")==0 || strcmp(option,"3b")==0) && (Start_Date != NULL || End_Date != NULL)){
+        if ((strcmp(option,"3a")==0 || strcmp(option,"3b")==0) && (strcmp(Start_Date,"") == 0 || strcmp(End_Date,"") == 0)){
             printf("Please input the meeting period\n");
             continue;
         }
