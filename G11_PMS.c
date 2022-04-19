@@ -793,16 +793,15 @@ int main(int argc, char *argv[]){
         fgets(inputString,50,stdin); // get the user input
         if ((strlen(inputString) > 0) && (inputString[strlen (inputString) - 1] == '\n')) //remove the newline
             inputString[strlen (inputString) - 1] = '\0';
+
         // save the input
-        temp = strtok(inputString," ");
-        // get the first argument, i.e. 1 2a 2b 3a 3b 4
-        strcpy(option,temp);
-        if (strcmp(option,"3a")==0 || strcmp(option,"3b")==0){ // Get the meeting range 
-            temp = strtok(NULL," ");
-            sprintf(Start_Date,"%s",temp);
-            temp = strtok(NULL," ");
-            sprintf(End_Date,"%s",temp);
+        sscanf(inputString,"%s %s %s",option,Start_Date,End_Date);
+        
+        if ((strcmp(option,"3a")==0 || strcmp(option,"3b")==0) && (Start_Date != NULL || End_Date != NULL)){
+            printf("Please input the meeting period\n");
+            continue;
         }
+        // 1, 2a, 2b, 3a, 3b, 4
         if(strcmp(option,"1")==0) project_team(arr);
         else if(strcmp(option,"2a")==0) single_input(marr);
         else if(strcmp(option,"2b")==0) batch_input(marr);
