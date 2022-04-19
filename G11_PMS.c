@@ -185,8 +185,6 @@ void single_input(struct Meeting marr[100]){
         time = atoi(temp);
         temp = strtok(meeting_Time,":");
         minute = atoi(temp);
-        printf("%d %d %d\n",meeting_year,meeting_month,meeting_date);
-        printf("%d %d",DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date),DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14));
         if (! DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) || !DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
             printf("Meeting date should be within 2022-04-25 to 2022-05-14.Please enter again.\n");
             continue; //back to the beginning of the looping
