@@ -8,16 +8,16 @@
 #define TSIZE 256
 
 struct Team{
-    char tem[40];
-    char proj[40];
-    char member[4][40];
+    char tem[40]; // team name
+    char proj[40]; // project name
+    char member[4][40]; // team member
 };
 
 struct Meeting{
-    char team[40];
-    char date[40];
-    char time[40];
-    char duration[40];       
+    char team[40]; // team belong to the meeting
+    char date[40]; // meeting start date
+    char time[40]; // meeting start time
+    char duration[40]; // meeting duration
 };
 // Declare function
 int DateCompare(int SmallerYear,int SmallerMonth, int SmallerDate, int LargerYear, int LargerMonth, int LargerDate);
@@ -27,7 +27,7 @@ void batch_input(struct Meeting marr[100]);
 // Global Variable
 int team_count=0;//Original in project_team, Problem occur if users input once and exit function, then go to function again and input.
 int meeting_count=0;// same as above
-int i,j;
+int i,j; // loop use
 
 //print menu
 void menu(){
@@ -59,16 +59,17 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     i = 0;
     int tot = 0;//count the number of line
     int crow =0; //count for which row is empty 
-    int count=meeting_count;
+    int count=meeting_count; // count exist meeting record
 
-    
+    // ask user to input file
     printf("Input the filename to be opened : ");
     scanf("%s",fname);	
     getchar();
+    // if 0 is input, return the main menu
     if(strcmp(fname,"0")==0){
         return;
     }
-
+    // open the user input file
     fptr = fopen(fname, "r");
     while(fgets(line[i], LSIZE, fptr)) {
         line[i][strlen(line[i]) - 1] = '\0'; //count each line of the file and write it to line array
@@ -91,19 +92,20 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
         temp = strtok(NULL,"-");                    // remove date
         meeting_date = atoi(temp);                  // save the date
         strcpy(meeting_Time,marr[count].time);
-        temp = strtok(meeting_Time,":");
+        temp = strtok(meeting_Time,":");            // hour
         time = atoi(temp);
-        temp = strtok(meeting_Time,":");
+        temp = strtok(meeting_Time,":");            // minute
         minute = atoi(temp);
+        // sunday
         if ((meeting_month == 5 && meeting_date == 1)||(meeting_month == 5 && meeting_date == 8)){
             printf("Meeting cannot added to the system. Problem detected: Meeting on Sunday.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
-        }
-        else if (time + atoi(marr[count].duration) > 19 || (time + atoi(marr[count].duration) == 19 && minute != 0) || time < 9){
+        }// 0900 > time > 1800 
+        else if (time + atoi(marr[count].duration) > 18 || (time + atoi(marr[count].duration) == 18 && minute != 0) || time < 9){
             printf("Meeting cannot added to the system. Problem detected: Meeting time should be within 09:00 to 18:00.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
-        }
+        }// correct period date
         else if (DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
             count++;
-        }else {
+        }else { // other error
             printf("Meeting cannot added to the system. Problem detected: Meeting is not within 2022-04-25 to 2022-05-14.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s\n",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
         }
     }
@@ -113,7 +115,9 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
         strcpy(marr[j].time , "\0");
         strcpy(marr[j].duration ,"\0");
     }
+    // inform user
     printf("\nMeeting request has been imported!\n\n");
+    // count all the meeting number
     meeting_count += tot-crow;
 }
 
@@ -167,7 +171,7 @@ void single_input(struct Meeting marr[100]){
         getchar();
         if(strcmp(str,"0")==0) break; // exit the function
         sscanf( str, "%s %s %s %s ",marr[meeting_count].team,marr[meeting_count].date,marr[meeting_count].time,marr[meeting_count].duration); //conver user input string to words and store in struct variable separately
-
+        // Duration 1-9
         if(atoi(marr[meeting_count].duration) <=0 || atoi(marr[meeting_count].duration) >=10 ){ //atoi is convert string to integer
             printf("The duration should from 1 to 9. Please enter again.\n");
             continue; //back to the beginning of the looping
@@ -181,24 +185,26 @@ void single_input(struct Meeting marr[100]){
         meeting_month = atoi(temp);                         // save the month
         temp = strtok(NULL,"-");                            // remove date
         meeting_date = atoi(temp);                          // save the date
-        strcpy(meeting_Time,marr[meeting_count].time);
-        temp = strtok(meeting_Time,":");
+        strcpy(meeting_Time,marr[meeting_count].time);      // backup the time
+        temp = strtok(meeting_Time,":");                    // get the hour
         time = atoi(temp);
-        temp = strtok(meeting_Time,":");
+        temp = strtok(meeting_Time,":");                    // get the minute
         minute = atoi(temp);
+        // not within 2022-04-25 and 2022-05-14
         if (! DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) || !DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
             printf("Meeting date should be within 2022-04-25 to 2022-05-14.Please enter again.\n");
             continue; //back to the beginning of the looping
         }
-        if (time + atoi(marr[meeting_count].duration) > 19 || (time + atoi(marr[meeting_count].duration) == 19 && minute != 0) || time < 9){
+        // 0900 >= time >= 1800
+        if (time + atoi(marr[meeting_count].duration) > 18 || (time + atoi(marr[meeting_count].duration) == 18 && minute != 0) || time < 9){
             printf("Meeting time should be within 09:00 to 18:00.Please enter again.\n");
             continue; //back to the beginning of the looping
-        }
+        }// sunday 2022-5-1 and 2022-5-8
         if ((meeting_month == 5 && meeting_date == 1)||(meeting_month == 5 && meeting_date == 8)){
             printf("Meeting date should be between Monday to Saturday. Please enter again.\n");
             continue; //back to the beginning of the looping
         }
-
+        // correct
         printf("Meeting is being added for %s in %s at %s for %s hours.  \n\n",replaceWordInText(marr[meeting_count].team,"_"," "),marr[meeting_count].date,marr[meeting_count].time,marr[meeting_count].duration);
         meeting_count++; //count for time of looping if user wants to continues
     }while(1);
@@ -338,7 +344,7 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
     int parentID;
     char buffer[21];
     int fd[8][2];
-    for (i=0;i<8;i++){ 
+    for (i=0;i<8;i++){ // pipe for exchange the member name
         if(pipe(fd[i])<0){
             printf("Pipe Error");exit(1);
         }
@@ -594,6 +600,7 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
         }else if(pid[childID]==0){// child here
             raise(SIGSTOP);
             file = fopen(filename,"a");
+            // file heading
             fprintf(file,"================================================================================\n");
             fprintf(file,"Staff: %s\n\n",namelist[childID]);
             fprintf(file,"Date                 Start            End             Team             Project        \n");
@@ -626,9 +633,13 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
         }
     }
     for (childID = 0; childID<8;childID++){
+        // Wait for children ready
         waitpid(pid[childID], NULL, WUNTRACED);
+        // Let one children write the file
         kill(pid[childID], SIGCONT);
+        // Wait for the children finish
         waitpid(pid[childID], NULL, WUNTRACED);
+        // let the children continue and start next children
         kill(pid[childID], SIGCONT);
     }
     file=fopen(filename,"a");
@@ -797,17 +808,18 @@ int main(int argc, char *argv[]){
 
         // save the input
         sscanf(inputString,"%s %s %s",option,Start_Date,End_Date);
+        // check if 3a 3b include time period
         if ((strcmp(option,"3a")==0 || strcmp(option,"3b")==0) && (strcmp(Start_Date,"") == 0 || strcmp(End_Date,"") == 0)){
             printf("Please input the meeting period\n");
             continue;
         }
         // 1, 2a, 2b, 3a, 3b, 4
-        if(strcmp(option,"1")==0) project_team(arr);
-        else if(strcmp(option,"2a")==0) single_input(marr);
-        else if(strcmp(option,"2b")==0) batch_input(marr);
-        else if(strcmp(option,"3a")==0) {fcfs(marr,meeting_count);fcfs_report(marr,arr,Start_Date,End_Date);}
-        else if(strcmp(option,"3b")==0) task3_sjf(meeting_count,team_count,marr,arr,Start_Date,End_Date);
-        else if(strcmp(option,"4")==0) loop=0;
+        if(strcmp(option,"1")==0) project_team(arr); // option 1
+        else if(strcmp(option,"2a")==0) single_input(marr); // option 2a
+        else if(strcmp(option,"2b")==0) batch_input(marr); // option 2b
+        else if(strcmp(option,"3a")==0) {fcfs(marr,meeting_count);fcfs_report(marr,arr,Start_Date,End_Date);} // option 3a
+        else if(strcmp(option,"3b")==0) task3_sjf(meeting_count,team_count,marr,arr,Start_Date,End_Date); // option 3b
+        else if(strcmp(option,"4")==0) loop=0;// exit
         else  printf(" \n **  Input ERROR! Please input again! ** \n");
     } while (loop);
     exit(0);
