@@ -110,12 +110,6 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
             printf("Meeting cannot added to the system. Problem detected: Meeting is not within 2022-04-25 to 2022-05-14.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s\n",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
         }
     }
-    for(j=tot;j<100;j++){// set the rest of the array to empty 
-        strcpy(marr[j].team , "\0");
-        strcpy(marr[j].date , "\0");
-        strcpy(marr[j].time , "\0");
-        strcpy(marr[j].duration ,"\0");
-    }
     // inform user
     printf("\nMeeting request has been imported!\n\n");
     // count all the meeting number
@@ -466,8 +460,8 @@ int DateCompare(int SmallerYear,int SmallerMonth, int SmallerDate, int LargerYea
 }
 
 // Save the result of FCFS into .txt variable
-void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], char EndDate[]){
-
+void fcfs_report(struct Meeting marr[],struct Team arr[], char StartDate[], char EndDate[]){
+    printf("HIx0\n");
     int hour[8];
     int minutes[8];
     int duration[8];
@@ -476,7 +470,7 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
     int crow=0;
     char project[8][10];//for project name and team matching
     char namelist[8][10]={"Alan","Billy","Cathy","David","Eva","Fanny","Gary","Helen"};
-
+    printf("HIx0\n");
     int row;
     for(row=0; row<100; row++){ // find the marr row until the row is empty
 
@@ -486,6 +480,7 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
             break;  
         } 
     } 
+    printf("HIx1\n");
 
     ///////////////////////////////print data to txt file /////////////////////////
 
@@ -522,7 +517,8 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
 
     fprintf(file,"Date                 Start            End             Team             Project        \n");
     fprintf(file,"================================================================================\n");
-
+    //fclose(file);
+    printf("HIx2\n");
 
 
 
@@ -655,22 +651,22 @@ void fcfs_report(struct Meeting marr[100],struct Team arr[5], char StartDate[], 
        
 }
 
-void fcfs(struct Meeting marr[100], int meeting_Count) {
+void fcfs(struct Meeting marr[], int meeting_Count) {
 
-    int year[8];
-    int mon[8];
-    int day[8];
-    int hour[8];
-    int minutes[8];
+    int year[TSIZE];
+    int mon[TSIZE];
+    int day[TSIZE];
+    int hour[TSIZE];
+    int minutes[TSIZE];
     int temp=0;
     int crow=0;
          
 
     //save the meeting schedule data in temp
-    char teamtem[20];
-    char datetem[20];
-    char timetem[20];
-    char durationtem[20];
+    char teamtem[TSIZE];
+    char datetem[TSIZE];
+    char timetem[TSIZE];
+    char durationtem[TSIZE];
 
     int row;
     for(row=0; row<meeting_Count; row++){ // find the marr row until the row is empty
@@ -681,6 +677,8 @@ void fcfs(struct Meeting marr[100], int meeting_Count) {
             break;  
         }
     }
+    printf("%d\n",meeting_Count);
+    crow = meeting_Count;
 
     //sorting by month
     for(i=0;i<crow;++i){ //put the month to the mon array
@@ -792,12 +790,10 @@ void fcfs(struct Meeting marr[100], int meeting_Count) {
         }
 
     }
-    printf("HI\n");
-
 }
 
 int main(int argc, char *argv[]){
-    int meetingTotal = 100, teamTotal = 5, loop = 1, pid;
+    int meetingTotal = TSIZE, teamTotal = 5, loop = 1, pid;
     // set the struct
     struct Team arr[teamTotal];
     struct Meeting marr[meetingTotal];
@@ -820,7 +816,7 @@ int main(int argc, char *argv[]){
         if(strcmp(option,"1")==0) project_team(arr); // option 1
         else if(strcmp(option,"2a")==0) single_input(marr); // option 2a
         else if(strcmp(option,"2b")==0) batch_input(marr); // option 2b
-        else if(strcmp(option,"3a")==0) {fcfs(marr,meeting_count);fcfs_report(marr,arr,Start_Date,End_Date);} // option 3a
+        else if(strcmp(option,"3a")==0) {fcfs(marr,meeting_count);printf("HIADSD\n");fcfs_report(marr,arr,Start_Date,End_Date);} // option 3a
         else if(strcmp(option,"3b")==0) task3_sjf(meeting_count,team_count,marr,arr,Start_Date,End_Date); // option 3b
         else if(strcmp(option,"4")==0) loop=0;// exit
         else  printf(" \n **  Input ERROR! Please input again! ** \n");
