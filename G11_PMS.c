@@ -409,7 +409,6 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
                 }
             }
             raise(SIGSTOP);
-            printf("\n\n\n\n\nCHILD: %d\n", memberID);
             //                  dateID Data
             char dateHaveMeeting[TSIZE][TSIZE];
             //                  dataID
