@@ -76,9 +76,7 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     }
     fclose(fptr);
     tot = i;//The number of row from import file 
-    for (i=0;i<tot;i++){
-        printf("%s\n",line[i]);
-    }
+
     char meeting_DATE[TSIZE],meeting_Time[TSIZE],*temp;
     int meeting_year, meeting_month, meeting_date,time,minute;
     for(i = 0; i < tot; ++i){
@@ -105,6 +103,11 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
             printf("Meeting cannot added to the system. Problem detected: Meeting time should be within 09:00 to 18:00.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
         }// correct period date
         else if (DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) && DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
+            for (j=0;j<count;j++){
+                if (marr[j].date == marr[count].date && marr[j].time == marr[count].time && marr[j].team == marr[count].team){
+                    printf("Meeting cannot added to the system. Problem detected: Meeting existed on that time for that team.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
+                }
+            }
             count++;
         }else { // other error
             printf("Meeting cannot added to the system. Problem detected: Meeting is not within 2022-04-25 to 2022-05-14.\n Detail: Team: %s, Meeting Date: %s, Meeting Time: %s, Meeting Duration: %s\n",marr[count].team,marr[count].date,marr[count].time,marr[count].duration);
@@ -273,7 +276,7 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
     char sjf[TSIZE][TSIZE];
     // nextPos store the next position of sjf to be used
 
-    int nextPos,sjfID[TSIZE],sjfMeetingLength[TSIZE],sjfPlaced=0;// array for sjf use
+    int nextPos,sjfID[TSIZE],sjfMeetingLength[TSIZE],sjfPlaced=0,sjfMeetingID[TSIZE];// array for sjf use
     // sjfID store the id order of nextPos to be printed
     // sjfMeetingLength store the sjfID represent meetingID's lenght, use for compare the length for other meeting
     // sjfPlace use to check if current meetingID is placed into the array of sjf or not
@@ -389,10 +392,12 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
                                             for(j=nextPos;j>=i;j--){// Find a smaller length in the array
                                                 sjfMeetingLength[j]=sjfMeetingLength[j-1];// Move all result in array backward
                                                 sjfID[j]=sjfID[j-1];
+                                                sjfMeetingID[j]=sjfMeetingID[j-1];
                                             }
                                             sjfID[i]=nextPos;// Store the record into array
                                             sjfMeetingLength[i]=atoi(meetingArr[meetingID].duration);
                                             sjfPlaced=1;
+                                            sjfMeetingID[i]=meetingID;
                                             break;// stop search
                                         }
                                     }
@@ -409,7 +414,14 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
                 }
             }
             raise(SIGSTOP);
-            file=fopen(filename,"a"); 
+            
+            //                  dateID Data
+            char dateHaveMeeting[TSIZE][TSIZE];
+            // Date, hour
+            int timeSlot[TSIZE][19]; // 0 empty // 1 = used // 2 = cannot use
+            int meetingTimeOnDate[TSIZE]; // < 9
+            int sjtOrder,dateID=0,total_Date=0;
+            file=fopen(filename,"a");
             if (haveMeetingRecord){// have data to printed.
                 // start line
                 fprintf(file,"Staff: %s\n\n",buffer);
@@ -417,9 +429,36 @@ void task3_sjf(int meetingTotal, int teamTotal, struct Meeting meetingArr[], str
                 fprintf(file,"Date           Start          End            Team           Project        \n");
                 fprintf(file,"===========================================================================\n");
                 // record
-                for(i=0;i<nextPos;i++){// print the result in specical order
-                    //printf("%s\n",sjf[sjfID[i]]);
-                    fprintf(file,"%s",sjf[sjfID[i]]);
+                int k,hour,minute,can_Print,date_exist;
+                struct Meeting currentMeetingData;
+                for(sjtOrder=0;sjtOrder<nextPos;sjtOrder++){// print the result in specical order
+                    can_Print =1;
+                    date_exist=total_Date;
+                    for (dateID=0;dateID<total_Date;dateID++){
+                        currentMeetingData = meetingArr[sjfMeetingID[sjtOrder]];// get the meeting data
+                        if(strcmp(currentMeetingData.date,dateHaveMeeting[dateID])==0){ // check if the date has meeting before
+                            sscanf(currentMeetingData.time,"%d:%d",hour,minute); // get the hour and minute
+                            for (k=hour;k<hour+atoi(currentMeetingData.duration);k++){
+                                if(timeSlot[dateID][k] == 1){
+                                    can_Print = 0;
+                                    break;
+                                }
+                            }
+                            date_exist=dateID;
+                        }
+                    }
+                    printf("%d\n",can_Print);
+                    if (can_Print){
+                        printf("%d\n",can_Print);
+                        fprintf(file,"%s",sjf[sjfID[sjtOrder]]);
+                        for (k=hour;k<hour+atoi(currentMeetingData.duration);k++){ // set the time slot used
+                            timeSlot[date_exist][k]=1;
+                        }
+                        if (date_exist == total_Date){
+                            strcpy(dateHaveMeeting[total_Date],currentMeetingData.date);
+                            total_Date++;
+                        }
+                    }
                 }
                 // end line
                 fprintf(file,"\n===========================================================================\n");
@@ -569,6 +608,10 @@ void fcfs_report(struct Meeting marr[],struct Team arr[], char StartDate[], char
 
     for(i=0;i<crow; i++){
         strcpy(temp_date,marr[i].date);
+        printf("Temp: %s\n",temp_date);
+        sscanf(temp_date,"%d-%d-%d",&meeting_year,&meeting_month,&meeting_date);
+        printf("%d, %d ,%d\n",meeting_year,meeting_month,meeting_date);
+        continue;
         temp = strtok(temp_date,"-");// remove year
         meeting_year = atoi(temp);
         temp = strtok(NULL,"-");    // remove month
