@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <signal.h>
 
-#define TSIZE 256
+#define TSIZE 1000
 
 struct Team{
     char tem[40]; // team name
@@ -50,10 +50,9 @@ void menu(){
 
 void batch_input(struct Meeting marr[100]){//define a team array of 100 records
 
-    #define LSIZE 130 
-    #define RSIZE 10
+    #define RSIZE 100
 
-    char line[RSIZE][LSIZE];
+    char line[TSIZE][RSIZE];
     char fname[20];
     FILE *fptr = NULL; 
     i = 0;
@@ -71,13 +70,15 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
     }
     // open the user input file
     fptr = fopen(fname, "r");
-    while(fgets(line[i], LSIZE, fptr)) {
-        line[i][strlen(line[i]) - 1] = '\0'; //count each line of the file and write it to line array
+    while(fgets(line[i], RSIZE, fptr)) {
+        line[i][strlen(line[i])] = '\0'; //count each line of the file and write it to line array
         i++;
     }
     fclose(fptr);
     tot = i;//The number of row from import file 
-
+    for (i=0;i<tot;i++){
+        printf("%s\n",line[i]);
+    }
     char meeting_DATE[TSIZE],meeting_Time[TSIZE],*temp;
     int meeting_year, meeting_month, meeting_date,time,minute;
     for(i = 0; i < tot; ++i){
@@ -190,6 +191,7 @@ void single_input(struct Meeting marr[100]){
         time = atoi(temp);
         temp = strtok(NULL,":");                    // get the minute
         minute = atoi(temp);
+        printf("%d\n",minute);
         // not within 2022-04-25 and 2022-05-14
         if (! DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) || !DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
             printf("Meeting date should be within 2022-04-25 to 2022-05-14.Please enter again.\n");
@@ -790,6 +792,7 @@ void fcfs(struct Meeting marr[100], int meeting_Count) {
         }
 
     }
+    printf("HI\n");
 
 }
 
