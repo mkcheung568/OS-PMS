@@ -94,7 +94,7 @@ void batch_input(struct Meeting marr[100]){//define a team array of 100 records
         strcpy(meeting_Time,marr[count].time);
         temp = strtok(meeting_Time,":");            // hour
         time = atoi(temp);
-        temp = strtok(meeting_Time,":");            // minute
+        temp = strtok(NULL,":");            // minute
         minute = atoi(temp);
         // sunday
         if ((meeting_month == 5 && meeting_date == 1)||(meeting_month == 5 && meeting_date == 8)){
@@ -188,7 +188,7 @@ void single_input(struct Meeting marr[100]){
         strcpy(meeting_Time,marr[meeting_count].time);      // backup the time
         temp = strtok(meeting_Time,":");                    // get the hour
         time = atoi(temp);
-        temp = strtok(meeting_Time,":");                    // get the minute
+        temp = strtok(NULL,":");                    // get the minute
         minute = atoi(temp);
         // not within 2022-04-25 and 2022-05-14
         if (! DateCompare(2022,04,25,meeting_year,meeting_month,meeting_date) || !DateCompare(meeting_year,meeting_month,meeting_date,2022,05,14)){
